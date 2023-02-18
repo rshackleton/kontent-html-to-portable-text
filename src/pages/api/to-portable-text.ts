@@ -1,4 +1,9 @@
+import blocktools from '@sanity/block-tools';
+import { Schema } from '@sanity/schema';
 import type { APIRoute } from 'astro';
+import { JSDOM } from 'jsdom';
+
+const schema = Schema.compile({});
 
 export const post: APIRoute = async (context) => {
   const body = await context.request.json();
@@ -10,15 +15,11 @@ export const post: APIRoute = async (context) => {
     });
   }
 
+  const result = blocktools.htmlToBlocks(body.html, schema, {
+    parseHtml: (html) => new JSDOM(html).window.document,
+  });
+
   return {
-    body: JSON.stringify({}),
+    body: JSON.stringify(result),
   };
 };
-
-function sleep(duration: number) {
-  return new Promise<void>((resolve) => {
-    setTimeout(() => {
-      resolve();
-    }, duration);
-  });
-}
